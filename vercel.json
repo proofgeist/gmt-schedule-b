@@ -1,0 +1,10 @@
+{
+  "devCommand": "vite --port 5173",
+  "framework": null,
+  "functions": {
+    "api/**/*.ts": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
+}
