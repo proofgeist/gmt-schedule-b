@@ -40,12 +40,12 @@ async function initializeSession(): Promise<void> {
         setSessionCookie(extractedCookie);
       }
     }
-  } catch (error) {
+  } catch {
     // Silently fail - will retry on next request
   }
 }
 
-async function makeCensusRequest(body: any, clientCookies?: string | null): Promise<Response> {
+async function makeCensusRequest(body: any): Promise<Response> {
   // Get stored session cookie
   let sessionCookie = getSessionCookie();
   
@@ -90,10 +90,9 @@ async function makeCensusRequest(body: any, clientCookies?: string | null): Prom
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const clientCookies = request.headers.get('cookie');
     
     // Make request to Census API
-    let response = await makeCensusRequest(body, clientCookies);
+    let response = await makeCensusRequest(body);
     
     // Check if response is OK and is JSON
     let contentType = response.headers.get('content-type');
@@ -102,7 +101,7 @@ export async function POST(request: NextRequest) {
     // If we get 400/401, clear session and retry once
     if (!response.ok && (response.status === 400 || response.status === 401)) {
       clearSessionCookie();
-      response = await makeCensusRequest(body, clientCookies);
+      response = await makeCensusRequest(body);
       
       // Re-check content type after retry
       contentType = response.headers.get('content-type');
